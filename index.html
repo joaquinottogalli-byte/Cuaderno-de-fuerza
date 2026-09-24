@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cuaderno de fuerza</title>
+<!-- Lo que convierte la página en una app instalable -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#17222D">
+<link rel="icon" href="icono-192.png">
+<link rel="apple-touch-icon" href="icono-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fuerza">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   1. TOKENS DE DISEÑO
+   Acentos = colores de los discos olímpicos (rojo, azul,
+   amarillo, verde). Cada ejercicio recibe siempre uno.
+   ========================================================= */
+:root {
+  --fondo: #E7EAEC;
+  --superficie: #F7F8F9;
+  --tinta: #17222D;
+  --tinta-suave: #5B6874;
+  --linea: #CBD1D6;
+  --disco-rojo: #C8323A;
+  --disco-azul: #2359A8;
+  --disco-amarillo: #D9A21B;
+  --disco-verde: #2E8A4E;
+  --accion: #17222D;
+  --accion-texto: #F7F8F9;
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --texto: "Barlow", "Segoe UI", system-ui, sans-serif;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fondo: #151A1F; --superficie: #1F262D; --tinta: #E8ECEF; --tinta-suave: #97A3AE;
+    --linea: #33404B; --accion: #E8ECEF; --accion-texto: #151A1F; --disco-amarillo: #E5B233;
+  }
+}
+:root[data-theme="dark"] {
+  --fondo: #151A1F; --superficie: #1F262D; --tinta: #E8ECEF; --tinta-suave: #97A3AE;
+  --linea: #33404B; --accion: #E8ECEF; --accion-texto: #151A1F; --disco-amarillo: #E5B233;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--fondo); color: var(--tinta);
+  font-family: var(--texto); font-size: 1rem; line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--disco-azul); outline-offset: 2px; }
+
+/* Sacamos las flechitas de los inputs numéricos: en el teléfono estorban */
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+
+/* =========================================================
+   2. ESTRUCTURA
+   ========================================================= */
+.app { max-width: 34rem; margin: 0 auto; padding: 1.25rem 1rem 6rem; }
+h1 { font-family: var(--display); font-weight: 800; font-size: 2rem; line-height: 1; margin: 0 0 1rem; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 1.35rem; margin: 0 0 0.5rem; line-height: 1.1; }
+
+.pestanas {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  display: flex; justify-content: center; gap: 0.5rem;
+  background: var(--superficie); border-top: 1px solid var(--linea);
+  padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
+.pestanas button {
+  flex: 1; max-width: 12rem; border: 0; background: none; padding: 0.6rem;
+  border-radius: 0.5rem; font-weight: 600; color: var(--tinta-suave); cursor: pointer;
+}
+.pestanas button[aria-selected="true"] { background: var(--fondo); color: var(--tinta); }
+
+section[hidden] { display: none; }
+.bloque { background: var(--superficie); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem; }
+
+label { display: block; font-size: 0.85rem; color: var(--tinta-suave); margin-bottom: 0.25rem; }
+input {
+  width: 100%; padding: 0.65rem 0.75rem; border: 1px solid var(--linea); border-radius: 0.5rem;
+  background: var(--fondo); font-size: 1.05rem;
+}
+.campo { margin-bottom: 0.9rem; }
+
+/* Fila rápida: Series | Reps | Peso */
+.rapido { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.rapido input { text-align: center; font-family: var(--display); font-size: 1.6rem; font-weight: 700; padding: 0.35rem; }
+
+.boton {
+  border: 0; border-radius: 0.5rem; padding: 0.75rem 1rem; font-weight: 600; cursor: pointer;
+  background: var(--accion); color: var(--accion-texto);
+}
+.boton.secundario { background: none; color: var(--tinta); border: 1px solid var(--linea); }
+.boton.ancho { width: 100%; margin-top: 0.75rem; }
+.boton:disabled { opacity: 0.4; cursor: default; }
+.enlace { border: 0; background: none; padding: 0; color: var(--disco-azul); font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Recordatorio de la última vez */
+.ultima {
+  border-left: 5px solid var(--color-ej); background: var(--fondo);
+  border-radius: 0.25rem 0.5rem 0.5rem 0.25rem; padding: 0.6rem 0.75rem; margin-bottom: 0.9rem;
+}
+.ultima .cuando { font-size: 0.85rem; color: var(--tinta-suave); }
+.ultima .que { font-family: var(--display); font-weight: 700; font-size: 1.3rem; line-height: 1.2; }
+.ultima .acciones { display: flex; gap: 1rem; margin-top: 0.3rem; }
+
+/* Series cargadas: cada una se puede ajustar */
+.series { list-style: none; padding: 0; margin: 1rem 0 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.serie {
+  display: grid; grid-template-columns: 1.75rem 1fr auto 1fr auto 2.25rem; align-items: center; gap: 0.4rem;
+  padding: 0.3rem 0.3rem 0.3rem 0.6rem; background: var(--fondo);
+  border-left: 5px solid var(--color-ej, var(--linea)); border-radius: 0.25rem 0.5rem 0.5rem 0.25rem;
+}
+.serie .n { color: var(--tinta-suave); font-size: 0.85rem; }
+.serie input { text-align: center; font-family: var(--display); font-weight: 700; font-size: 1.25rem; padding: 0.2rem; background: var(--superficie); }
+.serie .unidad { font-size: 0.85rem; color: var(--tinta-suave); }
+.quitar {
+  border: 0; background: none; color: var(--tinta-suave); cursor: pointer;
+  width: 2.25rem; height: 2.25rem; border-radius: 0.4rem; font-size: 1.2rem;
+}
+.quitar:hover { background: var(--linea); }
+
+/* Registros guardados */
+.registro { padding: 0.7rem 0; border-top: 1px solid var(--linea); }
+.registro:first-of-type { border-top: 0; padding-top: 0.2rem; }
+.registro .titulo { display: flex; align-items: center; gap: 0.5rem; }
+.disco { width: 0.8rem; height: 0.8rem; border-radius: 50%; background: var(--color-ej); flex: none; }
+.registro .nombre { font-weight: 600; flex: 1; }
+.registro .detalle { font-family: var(--display); font-size: 1.15rem; color: var(--tinta-suave); line-height: 1.3; }
+.vacio { color: var(--tinta-suave); margin: 0; }
+.registro .titulo .enlace { font-size: 0.9rem; }
+.registro.en-edicion { opacity: 0.45; }
+.editando { font-size: 0.9rem; color: var(--tinta-suave); margin: -0.25rem 0 0.9rem; }
+
+/* Historial */
+.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+.chip {
+  border: 1px solid var(--linea); background: var(--superficie); border-radius: 999px;
+  padding: 0.4rem 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;
+}
+.chip[aria-pressed="true"] { background: var(--accion); color: var(--accion-texto); border-color: var(--accion); }
+.sugerencias { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+.sugerencias:empty { display: none; }
+.sugerencias .chip { background: var(--fondo); }
+.marcas { display: flex; gap: 2rem; margin-bottom: 0.75rem; }
+.marca .valor { font-family: var(--display); font-weight: 800; font-size: 2.2rem; line-height: 1; }
+.marca .etiqueta { font-size: 0.8rem; color: var(--tinta-suave); }
+.grafico { width: 100%; height: auto; display: block; }
+.grafico text { font-family: var(--texto); font-size: 11px; fill: var(--tinta-suave); }
+
+.respaldo p { margin: 0 0 0.75rem; color: var(--tinta-suave); font-size: 0.95rem; }
+.respaldo .acciones { display: flex; gap: 0.5rem; }
+.respaldo .boton { flex: 1; }
+
+.aviso {
+  position: fixed; left: 50%; bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%); background: var(--accion); color: var(--accion-texto);
+  padding: 0.6rem 1rem; border-radius: 0.5rem; font-weight: 500; z-index: 6;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.aviso { display: flex; align-items: center; gap: 1rem; white-space: nowrap; max-width: calc(100% - 2rem); }
+.aviso.visible { opacity: 1; pointer-events: auto; }
+.aviso button {
+  border: 0; background: none; color: inherit; font-weight: 700; cursor: pointer;
+  padding: 0.25rem 0; text-decoration: underline; text-underline-offset: 3px;
+}
+.aviso button[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { .aviso { transition: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Cuaderno de fuerza</h1>
+
+  <!-- ===================== PANTALLA: CARGAR ===================== -->
+  <section id="vista-cargar">
+    <div class="bloque">
+      <p class="editando" id="editando" hidden></p>
+      <div class="campo">
+        <label for="fecha">Fecha</label>
+        <input id="fecha" type="date">
+      </div>
+
+      <div class="campo">
+        <label for="ejercicio">Ejercicio</label>
+        <input id="ejercicio" placeholder="Escribí o elegí uno" autocomplete="off">
+        <div class="sugerencias" id="sugerencias"></div>
+      </div>
+
+      <!-- Se llena solo si ya hiciste este ejercicio antes -->
+      <div id="ultima-vez"></div>
+
+      <div class="rapido">
+        <div><label for="cant-series">Series</label><input id="cant-series" type="number" inputmode="numeric" min="1" step="1" value="3"></div>
+        <div><label for="reps">Reps</label><input id="reps" type="number" inputmode="numeric" min="1" step="1"></div>
+        <div><label for="peso">Peso (kg)</label><input id="peso" type="number" inputmode="decimal" min="0" step="0.5"></div>
+      </div>
+      <button class="boton secundario ancho" id="agregar-series">Ajustar serie por serie</button>
+
+      <ul class="series" id="series-borrador"></ul>
+      <button class="boton ancho" id="guardar-ejercicio" disabled>Guardar ejercicio</button>
+      <button class="boton secundario ancho" id="cancelar-edicion" hidden>Cancelar edición</button>
+    </div>
+
+    <div class="bloque">
+      <h2 id="titulo-dia">Hoy</h2>
+      <div id="lista-dia"></div>
+    </div>
+  </section>
+
+  <!-- ===================== PANTALLA: HISTORIAL ===================== -->
+  <section id="vista-historial" hidden>
+    <div class="chips" id="chips"></div>
+    <div id="detalle-ejercicio"></div>
+
+    <div class="bloque respaldo">
+      <h2>Copia de seguridad</h2>
+      <p>Tus datos se guardan solo en este teléfono. Descargá una copia de vez en cuando, o cargá una para pasar tus datos a otro dispositivo.</p>
+      <div class="acciones">
+        <button class="boton secundario" id="exportar">Descargar copia</button>
+        <button class="boton secundario" id="importar">Cargar copia</button>
+      </div>
+      <input type="file" id="archivo-importar" accept=".json,application/json" hidden>
+    </div>
+  </section>
+</div>
+
+<nav class="pestanas" role="tablist">
+  <button role="tab" aria-selected="true" data-vista="cargar">Cargar</button>
+  <button role="tab" aria-selected="false" data-vista="historial">Historial</button>
+</nav>
+<div class="aviso" id="aviso" role="status">
+  <span id="aviso-texto"></span>
+  <button id="aviso-boton" hidden></button>
+</div>
+
+<script>
+/* =========================================================
+   1. ESTADO
+   Cada registro:
+   { id, fecha: "2026-09-24", ejercicio: "Sentadilla",
+     series: [ { peso: 80, reps: 5 }, { peso: 80, reps: 5 } ] }
+   Se guarda serie por serie para admitir series distintas.
+   "3 × 10 con 40 kg" es solo un atajo para cargarlas.
+   ========================================================= */
+let registros = [];
+let borrador = [];                     // series que estás cargando ahora
+let fechaSeleccionada = fechaDeHoy();
+let ejercicioSeleccionado = null;      // para la pantalla Historial
+let editandoId = null;                 // id del registro que estás corrigiendo (null = carga nueva)
+
+/* =========================================================
+   2. ALMACENAMIENTO
+   Todo queda en el navegador del teléfono (localStorage).
+   Para no perder nada: exportar / importar una copia (sección 5).
+   ========================================================= */
+const CLAVE_LOCAL = "cuaderno-fuerza-v1";
+
+function leerLocal() {
+  try { const t = localStorage.getItem(CLAVE_LOCAL); return t ? JSON.parse(t) : []; }
+  catch (e) { return []; }
+}
+function guardar() {
+  try { localStorage.setItem(CLAVE_LOCAL, JSON.stringify(registros)); }
+  catch (e) { avisar("No se pudo guardar en este teléfono"); }
+}
+
+/* =========================================================
+   3. FUNCIONES DE AYUDA (cálculos, sin tocar la pantalla)
+   ========================================================= */
+function $(id) { return document.getElementById(id); }
+
+function fechaDeHoy() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function fechaLinda(iso) {
+  const [a, m, d] = iso.split("-").map(Number);
+  return new Date(a, m - 1, d).toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short" });
+}
+function nuevoId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function normalizar(nombre) {
+  const limpio = nombre.trim().replace(/\s+/g, " ");
+  return limpio.charAt(0).toUpperCase() + limpio.slice(1);
+}
+
+const COLORES = ["--disco-rojo", "--disco-azul", "--disco-amarillo", "--disco-verde"];
+function colorDe(nombre) {
+  let suma = 0;
+  for (const letra of nombre.toLowerCase()) suma += letra.charCodeAt(0);
+  return `var(${COLORES[suma % COLORES.length]})`;
+}
+
+// Punto de partida para tus grupos: piernas, hombros, espalda y pecho
+const EJERCICIOS_BASE = [
+  "Sentadilla", "Prensa", "Peso muerto rumano", "Estocadas", "Sillón de cuádriceps", "Camilla femoral", "Gemelos",
+  "Press militar", "Vuelos laterales", "Vuelos posteriores", "Face pull",
+  "Dominadas", "Jalón al pecho", "Remo con barra", "Remo en polea baja",
+  "Press de banca", "Press inclinado con mancuernas", "Aperturas", "Fondos"
+];
+
+// "Jalón" y "jalon" cuentan igual al buscar
+function sinTildes(texto) {
+  return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function ejerciciosPorUso() {
+  const ordenados = [...registros].sort((a, b) => b.fecha.localeCompare(a.fecha));
+  return [...new Set(ordenados.map(r => r.ejercicio))];
+}
+
+function nombresDeEjercicios() {
+  return [...new Set(registros.map(r => r.ejercicio))].sort((a, b) => a.localeCompare(b, "es"));
+}
+function registrosDe(nombre) {
+  return registros.filter(r => r.ejercicio === nombre).sort((a, b) => a.fecha.localeCompare(b.fecha));
+}
+// La sesión más reciente de ese ejercicio ANTES de la fecha elegida
+function ultimaVezAntesDe(nombre, fecha) {
+  const previos = registrosDe(nombre).filter(r => r.fecha < fecha);
+  return previos[previos.length - 1] || null;
+}
+function pesoMaximo(r) { return Math.max(...r.series.map(s => s.peso)); }
+
+// [40x10, 40x10, 45x8] -> "2 × 10 con 40 kg, 1 × 8 con 45 kg"
+function resumenSeries(series) {
+  const grupos = [];
+  for (const s of series) {
+    const ultimo = grupos[grupos.length - 1];
+    if (ultimo && ultimo.peso === s.peso && ultimo.reps === s.reps) ultimo.veces++;
+    else grupos.push({ ...s, veces: 1 });
+  }
+  return grupos.map(g => `${g.veces} × ${g.reps} con ${g.peso} kg`).join(", ");
+}
+
+function escapar(texto) {
+  const div = document.createElement("div");
+  div.textContent = texto;
+  return div.innerHTML;
+}
+
+/* =========================================================
+   4. DIBUJAR (del estado a la pantalla)
+   ========================================================= */
+function dibujarTodo() {
+  dibujarUltimaVez();
+  dibujarBorrador();
+  dibujarDia();
+  dibujarHistorial();
+  dibujarSugerencias();
+}
+
+// Botones con ejercicios para elegir de un toque.
+// Primero los tuyos (el más reciente primero), después la lista base.
+function dibujarSugerencias() {
+  const texto = sinTildes($("ejercicio").value.trim());
+  const propios = ejerciciosPorUso();
+  const base = EJERCICIOS_BASE.filter(b => !propios.some(p => sinTildes(p) === sinTildes(b)));
+  const todos = [...propios, ...base];
+  // Si ya elegiste uno exacto, no hace falta seguir sugiriendo
+  const yaElegido = todos.some(n => sinTildes(n) === texto);
+  const lista = yaElegido ? [] : todos.filter(n => sinTildes(n).includes(texto)).slice(0, 8);
+  $("sugerencias").innerHTML = lista.map(n => `
+    <button class="chip" data-sugerencia="${escapar(n)}" style="--color-ej:${colorDe(n)}">
+      <span class="disco"></span>${escapar(n)}
+    </button>`).join("");
+}
+
+function elegirEjercicio(nombre) {
+  $("ejercicio").value = nombre;
+  dibujarUltimaVez();
+  dibujarBorrador();
+  dibujarSugerencias();
+  $("reps").focus();
+}
+
+function dibujarUltimaVez() {
+  const nombre = normalizar($("ejercicio").value);
+  const ultimo = nombre ? ultimaVezAntesDe(nombre, fechaSeleccionada) : null;
+  $("ultima-vez").innerHTML = !ultimo ? "" : `
+    <div class="ultima" style="--color-ej:${colorDe(nombre)}">
+      <div class="cuando">La última vez, ${fechaLinda(ultimo.fecha)}</div>
+      <div class="que">${resumenSeries(ultimo.series)}</div>
+      <div class="acciones">
+        <button class="enlace" id="repetir">Repetir lo mismo</button>
+        <button class="enlace" data-ver="${escapar(nombre)}">Ver historial</button>
+      </div>
+    </div>`;
+}
+
+function dibujarBorrador() {
+  const nombre = $("ejercicio").value.trim();
+  const color = nombre ? colorDe(nombre) : "var(--linea)";
+  // Cada serie tiene sus propios inputs: así podés ajustar la que varió
+  $("series-borrador").innerHTML = borrador.map((s, i) => `
+    <li class="serie" style="--color-ej:${color}">
+      <span class="n">${i + 1}</span>
+      <input type="number" inputmode="numeric" min="1" value="${s.reps}" data-indice="${i}" data-campo="reps" aria-label="Repeticiones de la serie ${i + 1}">
+      <span class="unidad">reps</span>
+      <input type="number" inputmode="decimal" min="0" step="0.5" value="${s.peso}" data-indice="${i}" data-campo="peso" aria-label="Peso de la serie ${i + 1}">
+      <span class="unidad">kg</span>
+      <button class="quitar" data-quitar="${i}" aria-label="Quitar serie ${i + 1}">×</button>
+    </li>`).join("");
+  actualizarBotonGuardar();
+  // Mismo formulario para cargar y para corregir: solo cambian los textos
+  $("guardar-ejercicio").textContent = editandoId ? "Guardar cambios" : "Guardar ejercicio";
+  $("cancelar-edicion").hidden = !editandoId;
+  $("editando").hidden = !editandoId;
+  $("editando").textContent = editandoId ? "Estás corrigiendo un ejercicio ya guardado." : "";
+}
+
+// Se puede guardar si hay nombre y, además, series ajustadas o la fila rápida completa
+function actualizarBotonGuardar() {
+  const nombre = $("ejercicio").value.trim();
+  $("guardar-ejercicio").disabled = !nombre || (borrador.length === 0 && !leerFilaRapida());
+}
+
+function dibujarDia() {
+  const esHoy = fechaSeleccionada === fechaDeHoy();
+  $("titulo-dia").textContent = esHoy ? "Hoy" : fechaLinda(fechaSeleccionada);
+  const delDia = registros.filter(r => r.fecha === fechaSeleccionada);
+  $("lista-dia").innerHTML = delDia.length === 0
+    ? `<p class="vacio">Nada cargado ${esHoy ? "hoy" : "ese día"} todavía.</p>`
+    : delDia.map(r => `
+      <div class="registro${r.id === editandoId ? " en-edicion" : ""}" style="--color-ej:${colorDe(r.ejercicio)}">
+        <div class="titulo">
+          <span class="disco"></span>
+          <span class="nombre">${escapar(r.ejercicio)}</span>
+          <button class="enlace" data-editar="${r.id}">Editar</button>
+          <button class="quitar" data-borrar="${r.id}" aria-label="Borrar ${escapar(r.ejercicio)}">×</button>
+        </div>
+        <div class="detalle">${resumenSeries(r.series)}</div>
+      </div>`).join("");
+}
+
+function dibujarHistorial() {
+  const nombres = nombresDeEjercicios();
+  if (nombres.length === 0) {
+    $("chips").innerHTML = "";
+    $("detalle-ejercicio").innerHTML = `<div class="bloque"><p class="vacio">Cuando guardes tu primer ejercicio, acá vas a ver su historial.</p></div>`;
+    return;
+  }
+  if (!nombres.includes(ejercicioSeleccionado)) ejercicioSeleccionado = nombres[0];
+
+  $("chips").innerHTML = nombres.map(n => `
+    <button class="chip" data-chip="${escapar(n)}" aria-pressed="${n === ejercicioSeleccionado}" style="--color-ej:${colorDe(n)}">
+      <span class="disco"></span>${escapar(n)}
+    </button>`).join("");
+
+  const lista = registrosDe(ejercicioSeleccionado);
+  const record = Math.max(...lista.map(pesoMaximo));
+
+  // Lo más reciente primero: es lo que querés recordar rápido
+  $("detalle-ejercicio").innerHTML = `
+    <div class="bloque">
+      <h2>${escapar(ejercicioSeleccionado)}</h2>
+      ${[...lista].reverse().map(r => `
+        <div class="registro">
+          <div class="titulo">
+            <span class="nombre">${fechaLinda(r.fecha)}</span>
+            <button class="enlace" data-editar="${r.id}">Editar</button>
+            <button class="quitar" data-borrar="${r.id}" aria-label="Borrar registro del ${fechaLinda(r.fecha)}">×</button>
+          </div>
+          <div class="detalle">${resumenSeries(r.series)}</div>
+        </div>`).join("")}
+    </div>
+    <div class="bloque">
+      <div class="marcas">
+        <div class="marca"><div class="valor">${record} kg</div><div class="etiqueta">Tu récord</div></div>
+        <div class="marca"><div class="valor">${lista.length}</div><div class="etiqueta">Sesiones</div></div>
+      </div>
+      ${dibujarGrafico(lista, colorDe(ejercicioSeleccionado))}
+    </div>`;
+}
+
+// Gráfico de líneas hecho a mano con SVG: peso máximo por sesión
+function dibujarGrafico(lista, color) {
+  if (lista.length < 2) return `<p class="vacio">Con dos sesiones o más aparece el gráfico de progreso.</p>`;
+  const ancho = 320, alto = 140, margen = 28;
+  const valores = lista.map(pesoMaximo);
+  const min = Math.min(...valores), max = Math.max(...valores);
+  const rango = max - min || 1;
+  const x = (i) => margen + i * (ancho - margen * 1.5) / (valores.length - 1);
+  const y = (v) => alto - margen - (v - min) / rango * (alto - margen * 2);
+  return `
+    <svg class="grafico" viewBox="0 0 ${ancho} ${alto}" role="img" aria-label="Peso máximo por sesión, de ${min} a ${max} kg">
+      <line x1="${margen}" x2="${ancho}" y1="${alto - margen}" y2="${alto - margen}" stroke="var(--linea)"/>
+      <text x="0" y="${y(max) + 4}">${max}</text>
+      <text x="0" y="${y(min) + 4}">${min}</text>
+      <polyline points="${valores.map((v, i) => `${x(i)},${y(v)}`).join(" ")}" fill="none" stroke="${color}" stroke-width="3" stroke-linejoin="round"/>
+      ${valores.map((v, i) => `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${color}"/>`).join("")}
+      <text x="${margen}" y="${alto - 8}">${fechaLinda(lista[0].fecha)}</text>
+      <text x="${ancho}" y="${alto - 8}" text-anchor="end">${fechaLinda(lista[lista.length - 1].fecha)}</text>
+    </svg>`;
+}
+
+// Mensaje flotante. Opcionalmente con un botón de acción (ej: Deshacer)
+let temporizadorAviso;
+let accionAviso = null;
+function avisar(texto, accion = null) {
+  $("aviso-texto").textContent = texto;
+  $("aviso-boton").hidden = !accion;
+  if (accion) $("aviso-boton").textContent = accion.etiqueta;
+  accionAviso = accion ? accion.hacer : null;
+  $("aviso").classList.add("visible");
+  clearTimeout(temporizadorAviso);
+  // Con acción damos más tiempo para reaccionar
+  temporizadorAviso = setTimeout(ocultarAviso, accion ? 6000 : 2200);
+}
+function ocultarAviso() {
+  $("aviso").classList.remove("visible");
+  accionAviso = null;
+}
+
+/* =========================================================
+   5. ACCIONES: cambian el estado, guardan y redibujan
+   ========================================================= */
+// Lee Series | Reps | Peso. Devuelve los valores o null si falta algo.
+function leerFilaRapida() {
+  const cantidad = parseInt($("cant-series").value, 10);
+  const reps = parseInt($("reps").value, 10);
+  const peso = parseFloat($("peso").value);
+  if (isNaN(cantidad) || cantidad < 1 || isNaN(reps) || reps < 1 || isNaN(peso) || peso < 0) return null;
+  return { cantidad, reps, peso };
+}
+function seriesDeFilaRapida(fila) {
+  return Array.from({ length: fila.cantidad }, () => ({ peso: fila.peso, reps: fila.reps }));
+}
+// Explica qué falta en la fila rápida y pone el foco ahí
+function senalarFaltante() {
+  if (!(parseInt($("cant-series").value, 10) >= 1)) { avisar("Poné cuántas series"); $("cant-series").focus(); }
+  else if (!(parseInt($("reps").value, 10) >= 1)) { avisar("Poné cuántas repeticiones"); $("reps").focus(); }
+  else { avisar("Poné el peso en kg (0 si es sin carga)"); $("peso").focus(); }
+}
+
+// Pasa la fila rápida a la lista de series, para ajustarlas una por una
+function agregarSeries() {
+  const fila = leerFilaRapida();
+  if (!fila) { senalarFaltante(); return; }
+  borrador.push(...seriesDeFilaRapida(fila));
+  dibujarBorrador();
+}
+
+function repetirUltimaVez() {
+  const ultimo = ultimaVezAntesDe(normalizar($("ejercicio").value), fechaSeleccionada);
+  if (!ultimo) return;
+  borrador = ultimo.series.map(s => ({ ...s }));   // copia, para no modificar el registro viejo
+  dibujarBorrador();
+}
+
+function editarSerie(input) {
+  const i = Number(input.dataset.indice);
+  const valor = input.dataset.campo === "reps" ? parseInt(input.value, 10) : parseFloat(input.value);
+  if (isNaN(valor) || valor < 0) { input.value = borrador[i][input.dataset.campo]; return; }
+  borrador[i][input.dataset.campo] = valor;
+}
+
+function guardarEjercicio() {
+  const nombre = normalizar($("ejercicio").value);
+  if (!nombre) return;
+  // Caso común: no ajustaste nada, así que usamos directamente la fila rápida
+  if (borrador.length === 0) {
+    const fila = leerFilaRapida();
+    if (!fila) { senalarFaltante(); return; }
+    borrador = seriesDeFilaRapida(fila);
+  }
+  const nuevo = { fecha: fechaSeleccionada, ejercicio: nombre, series: borrador };
+  if (editandoId) {
+    // Reemplazamos el registro viejo conservando su id
+    registros = registros.map(r => r.id === editandoId ? { ...nuevo, id: editandoId } : r);
+    avisar("Cambios guardados");
+  } else {
+    registros.push({ ...nuevo, id: nuevoId() });
+    avisar(`${nombre} guardado`);
+  }
+  guardar();
+  limpiarFormulario();
+}
+
+function limpiarFormulario() {
+  editandoId = null;
+  borrador = [];
+  $("ejercicio").value = "";
+  $("reps").value = "";
+  $("peso").value = "";
+  dibujarTodo();
+}
+
+// Carga un registro guardado en el formulario para corregirlo
+function editarRegistro(id) {
+  const r = registros.find(x => x.id === id);
+  if (!r) return;
+  editandoId = id;
+  fechaSeleccionada = r.fecha;
+  $("fecha").value = r.fecha;
+  $("ejercicio").value = r.ejercicio;
+  borrador = r.series.map(s => ({ ...s }));   // copia: si cancelás, el original queda intacto
+  cambiarVista("cargar");
+  dibujarTodo();
+}
+
+// Borra al instante y ofrece "Deshacer" (en vez de preguntar antes)
+function borrarRegistro(id) {
+  const indice = registros.findIndex(x => x.id === id);
+  if (indice === -1) return;
+  const borrado = registros[indice];
+  registros = registros.filter(x => x.id !== id);
+  guardar();
+  if (id === editandoId) limpiarFormulario(); else dibujarTodo();
+
+  avisar(`Borraste ${borrado.ejercicio}`, {
+    etiqueta: "Deshacer",
+    hacer: () => {
+      registros.splice(indice, 0, borrado);   // vuelve a su lugar original
+      guardar();
+      dibujarTodo();
+      avisar(`${borrado.ejercicio} recuperado`);
+    }
+  });
+}
+
+// Descarga todos los registros como un archivo .json
+function exportarDatos() {
+  const contenido = { app: "cuaderno-de-fuerza", version: 1, exportado: new Date().toISOString(), registros };
+  const archivo = new Blob([JSON.stringify(contenido, null, 2)], { type: "application/json" });
+  const enlace = document.createElement("a");
+  enlace.href = URL.createObjectURL(archivo);
+  enlace.download = `cuaderno-respaldo-${fechaDeHoy()}.json`;
+  enlace.click();
+  URL.revokeObjectURL(enlace.href);
+}
+
+// Un registro es válido si tiene la forma que espera la app
+function esRegistroValido(r) {
+  return r && typeof r.id === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.fecha)
+    && typeof r.ejercicio === "string" && r.ejercicio.trim() !== ""
+    && Array.isArray(r.series) && r.series.length > 0
+    && r.series.every(s => typeof s.peso === "number" && s.peso >= 0 && Number.isInteger(s.reps) && s.reps >= 1);
+}
+
+// Lee una copia y SUMA los registros que no tengas (no borra nada)
+async function importarDatos(archivo) {
+  try {
+    const contenido = JSON.parse(await archivo.text());
+    const entrantes = Array.isArray(contenido) ? contenido : contenido.registros;
+    if (!Array.isArray(entrantes)) throw new Error("formato");
+    const validos = entrantes.filter(esRegistroValido);
+    const idsExistentes = new Set(registros.map(r => r.id));
+    const nuevos = validos.filter(r => !idsExistentes.has(r.id));
+    registros.push(...nuevos);
+    guardar();
+    dibujarTodo();
+    avisar(nuevos.length ? `Se sumaron ${nuevos.length} ejercicios` : "Ya tenías todo lo de esa copia");
+  } catch (e) {
+    avisar("Ese archivo no es una copia del Cuaderno");
+  }
+}
+
+function cambiarVista(vista) {
+  document.querySelectorAll("[role=tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.vista === vista));
+  $("vista-cargar").hidden = vista !== "cargar";
+  $("vista-historial").hidden = vista !== "historial";
+  window.scrollTo(0, 0);
+}
+
+/* =========================================================
+   6. EVENTOS
+   ========================================================= */
+$("fecha").addEventListener("change", () => {
+  fechaSeleccionada = $("fecha").value || fechaDeHoy();
+  dibujarUltimaVez();
+  dibujarDia();
+});
+$("ejercicio").addEventListener("input", () => { dibujarUltimaVez(); dibujarBorrador(); dibujarSugerencias(); });
+$("agregar-series").addEventListener("click", agregarSeries);
+$("peso").addEventListener("keydown", e => { if (e.key === "Enter") guardarEjercicio(); });
+["cant-series", "reps", "peso"].forEach(id => $(id).addEventListener("input", actualizarBotonGuardar));
+$("guardar-ejercicio").addEventListener("click", guardarEjercicio);
+$("cancelar-edicion").addEventListener("click", limpiarFormulario);
+$("exportar").addEventListener("click", exportarDatos);
+$("importar").addEventListener("click", () => $("archivo-importar").click());
+$("archivo-importar").addEventListener("change", e => {
+  if (e.target.files[0]) importarDatos(e.target.files[0]);
+  e.target.value = "";   // permite volver a elegir el mismo archivo
+});
+$("aviso-boton").addEventListener("click", () => {
+  const hacer = accionAviso;
+  ocultarAviso();
+  if (hacer) hacer();
+});
+
+// "change" se dispara al terminar de editar una serie (no en cada tecla)
+$("series-borrador").addEventListener("change", e => { if (e.target.dataset.campo) editarSerie(e.target); });
+
+// Un solo escuchador para todos los botones creados dinámicamente
+document.addEventListener("click", (e) => {
+  const boton = e.target.closest("button");
+  if (!boton) return;
+  if (boton.id === "repetir") repetirUltimaVez();
+  if (boton.dataset.sugerencia) elegirEjercicio(boton.dataset.sugerencia);
+  if (boton.dataset.quitar !== undefined) { borrador.splice(Number(boton.dataset.quitar), 1); dibujarBorrador(); }
+  if (boton.dataset.borrar) borrarRegistro(boton.dataset.borrar);
+  if (boton.dataset.editar) editarRegistro(boton.dataset.editar);
+  if (boton.dataset.chip) { ejercicioSeleccionado = boton.dataset.chip; dibujarHistorial(); }
+  if (boton.dataset.ver) { ejercicioSeleccionado = boton.dataset.ver; dibujarHistorial(); cambiarVista("historial"); }
+  if (boton.dataset.vista) cambiarVista(boton.dataset.vista);
+});
+
+/* =========================================================
+   7. ARRANQUE
+   ========================================================= */
+$("fecha").value = fechaSeleccionada;
+registros = leerLocal();
+dibujarTodo();
+
+// Service worker: permite abrir la app sin conexión (por si en el gimnasio no hay señal)
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "Cuaderno de fuerza",
+  "short_name": "Fuerza",
+  "description": "Registro de pesos, series y repeticiones",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#E7EAEC",
+  "theme_color": "#17222D",
+  "icons": [
+    { "src": "icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
