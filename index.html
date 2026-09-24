@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cuaderno de fuerza</title>
+<title>GymNotes</title>
 <!-- Lo que convierte la página en una app instalable -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#17222D">
 <link rel="icon" href="icono-192.png">
 <link rel="apple-touch-icon" href="icono-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Fuerza">
+<meta name="apple-mobile-web-app-title" content="GymNotes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
@@ -178,7 +178,7 @@ input {
 </head>
 <body>
 <div class="app">
-  <h1>Cuaderno de fuerza</h1>
+  <h1>GymNotes</h1>
 
   <!-- ===================== PANTALLA: CARGAR ===================== -->
   <section id="vista-cargar">
@@ -262,6 +262,8 @@ let editandoId = null;                 // id del registro que estás corrigiendo
    Todo queda en el navegador del teléfono (localStorage).
    Para no perder nada: exportar / importar una copia (sección 5).
    ========================================================= */
+// La clave queda con el nombre viejo a propósito: si la cambiamos, la app
+// buscaría en otro lugar y no encontraría tus datos ya guardados.
 const CLAVE_LOCAL = "cuaderno-fuerza-v1";
 
 function leerLocal() {
@@ -630,11 +632,11 @@ function borrarRegistro(id) {
 
 // Descarga todos los registros como un archivo .json
 function exportarDatos() {
-  const contenido = { app: "cuaderno-de-fuerza", version: 1, exportado: new Date().toISOString(), registros };
+  const contenido = { app: "gymnotes", version: 1, exportado: new Date().toISOString(), registros };
   const archivo = new Blob([JSON.stringify(contenido, null, 2)], { type: "application/json" });
   const enlace = document.createElement("a");
   enlace.href = URL.createObjectURL(archivo);
-  enlace.download = `cuaderno-respaldo-${fechaDeHoy()}.json`;
+  enlace.download = `gymnotes-respaldo-${fechaDeHoy()}.json`;
   enlace.click();
   URL.revokeObjectURL(enlace.href);
 }
@@ -661,7 +663,7 @@ async function importarDatos(archivo) {
     dibujarTodo();
     avisar(nuevos.length ? `Se sumaron ${nuevos.length} ejercicios` : "Ya tenías todo lo de esa copia");
   } catch (e) {
-    avisar("Ese archivo no es una copia del Cuaderno");
+    avisar("Ese archivo no es una copia de GymNotes");
   }
 }
 

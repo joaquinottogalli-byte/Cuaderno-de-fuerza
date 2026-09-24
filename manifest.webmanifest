@@ -1,6 +1,6 @@
 {
-  "name": "Cuaderno de fuerza",
-  "short_name": "Fuerza",
+  "name": "GymNotes",
+  "short_name": "GymNotes",
   "description": "Registro de pesos, series y repeticiones",
   "lang": "es",
   "start_url": "./",

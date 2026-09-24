@@ -1,4 +1,4 @@
-# Cuaderno de fuerza
+# GymNotes
 
 App web para registrar pesos, series y repeticiones en el gimnasio.
 
