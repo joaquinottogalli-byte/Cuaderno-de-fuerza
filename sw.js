@@ -1,7 +1,7 @@
 // Service worker: un intermediario entre la app e internet.
 // Estrategia "primero la red": si hay conexión, trae la versión más nueva
 // y guarda una copia; si no hay conexión, usa la copia guardada.
-const CACHE = "cuaderno-v1";
+const CACHE = "gymnotes-v2";   // cambiar este nombre fuerza a borrar las copias viejas
 const ARCHIVOS = ["./", "./index.html", "./manifest.webmanifest", "./icono-192.png", "./icono-512.png", "./icono-180.png"];
 
 self.addEventListener("install", (evento) => {
@@ -22,7 +22,9 @@ self.addEventListener("fetch", (evento) => {
   // Solo nos ocupamos de nuestros propios archivos (no de las fuentes de Google, por ejemplo)
   if (pedido.method !== "GET" || new URL(pedido.url).origin !== self.location.origin) return;
   evento.respondWith(
-    fetch(pedido)
+    // cache: "no-cache" = preguntarle SIEMPRE al servidor si hay versión nueva,
+    // en vez de usar la copia que el navegador guarda unos minutos por su cuenta
+    fetch(pedido, { cache: "no-cache" })
       .then((respuesta) => {
         const copia = respuesta.clone();
         caches.open(CACHE).then((cache) => cache.put(pedido, copia));

@@ -181,6 +181,7 @@ input {
 .grafico { width: 100%; height: auto; display: block; }
 .grafico text { font-family: var(--texto); font-size: 11px; fill: var(--tinta-suave); }
 
+.version { text-align: center; font-size: 0.8rem; color: var(--tinta-suave); margin: 0.5rem 0 0; }
 .respaldo p { margin: 0 0 0.75rem; color: var(--tinta-suave); font-size: 0.95rem; }
 .respaldo .acciones { display: flex; gap: 0.5rem; }
 .respaldo .boton { flex: 1; }
@@ -271,6 +272,7 @@ input {
       </div>
       <input type="file" id="archivo-importar" accept=".json,application/json" hidden>
     </div>
+    <p class="version">GymNotes · versión <span id="version"></span></p>
   </section>
 </div>
 
@@ -284,6 +286,9 @@ input {
 </div>
 
 <script>
+// Subir este número en cada cambio: se ve al final de Historial
+const VERSION = "2026.09.25-a";
+
 /* =========================================================
    1. ESTADO
    Cada registro:
@@ -873,6 +878,7 @@ document.addEventListener("click", (e) => {
 /* =========================================================
    7. ARRANQUE
    ========================================================= */
+$("version").textContent = VERSION;
 $("fecha").value = fechaSeleccionada;
 registros = leerLocal();
 grupos = leerGrupos();
@@ -880,7 +886,14 @@ dibujarTodo();
 
 // Service worker: permite abrir la app sin conexión (por si en el gimnasio no hay señal)
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
+  navigator.serviceWorker.register("sw.js").then(r => r.update()).catch(() => {});
+  // Cuando un service worker nuevo toma el control, recargamos una vez para mostrar la versión nueva
+  let recargando = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (recargando) return;
+    recargando = true;
+    location.reload();
+  });
 }
 </script>
 </body>
