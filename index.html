@@ -66,6 +66,8 @@ input[type=number] { -moz-appearance: textfield; }
    ========================================================= */
 .app { max-width: 34rem; margin: 0 auto; padding: 1.25rem 1rem 6rem; }
 h1 { font-family: var(--display); font-weight: 800; font-size: 2rem; line-height: 1; margin: 0 0 1rem; }
+.marca-app { display: flex; align-items: center; gap: 0.5rem; }
+.marca-app img { display: block; height: 2rem; width: auto; }
 h2 { font-family: var(--display); font-weight: 700; font-size: 1.35rem; margin: 0 0 0.5rem; line-height: 1.1; }
 
 .pestanas {
@@ -105,7 +107,7 @@ input {
 
 /* Recordatorio de la última vez */
 .ultima {
-  border-left: 5px solid var(--color-ej); background: var(--fondo);
+  border-left: 5px solid var(--linea); background: var(--fondo);
   border-radius: 0.25rem 0.5rem 0.5rem 0.25rem; padding: 0.6rem 0.75rem; margin-bottom: 0.9rem;
 }
 .ultima .cuando { font-size: 0.85rem; color: var(--tinta-suave); }
@@ -117,7 +119,7 @@ input {
 .serie {
   display: grid; grid-template-columns: 1.75rem 1fr auto 1fr auto 2.25rem; align-items: center; gap: 0.4rem;
   padding: 0.3rem 0.3rem 0.3rem 0.6rem; background: var(--fondo);
-  border-left: 5px solid var(--color-ej, var(--linea)); border-radius: 0.25rem 0.5rem 0.5rem 0.25rem;
+  border-left: 5px solid var(--linea); border-radius: 0.25rem 0.5rem 0.5rem 0.25rem;
 }
 .serie .n { color: var(--tinta-suave); font-size: 0.85rem; }
 .serie input { text-align: center; font-family: var(--display); font-weight: 700; font-size: 1.25rem; padding: 0.2rem; background: var(--superficie); }
@@ -147,6 +149,29 @@ input {
   padding: 0.4rem 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;
 }
 .chip[aria-pressed="true"] { background: var(--accion); color: var(--accion-texto); border-color: var(--accion); }
+/* Botones de grupo muscular */
+.grupos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+.grupo {
+  border: 1px solid var(--linea); background: var(--fondo); border-radius: 0.5rem;
+  padding: 0.55rem 0.2rem; font-weight: 600; font-size: 0.95rem; cursor: pointer;
+}
+.grupo { display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
+.grupo .disco { width: 0.65rem; height: 0.65rem; }
+.grupo[aria-pressed="true"] { background: var(--accion); color: var(--accion-texto); border-color: var(--accion); box-shadow: inset 0 -4px 0 var(--color-ej); }
+.etiqueta { display: block; font-size: 0.85rem; color: var(--tinta-suave); margin-bottom: 0.25rem; }
+.asignar { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin: -0.1rem 0 0.75rem; }
+.asignar .etiqueta { margin: 0 0.2rem 0 0; }
+.asignar .grupo { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
+.sin-grupo { font-size: 0.9rem; color: var(--tinta-suave); margin: 0.5rem 0 0; }
+/* Campo con botón × para borrarlo de un toque */
+.con-limpiar { position: relative; }
+.con-limpiar input { padding-right: 2.75rem; }
+.limpiar {
+  position: absolute; right: 0.25rem; top: 50%; transform: translateY(-50%);
+  width: 2.25rem; height: 2.25rem; border: 0; border-radius: 50%; cursor: pointer;
+  background: var(--linea); color: var(--tinta); font-size: 1.2rem; line-height: 1;
+}
+.limpiar[hidden] { display: none; }
 .sugerencias { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
 .sugerencias:empty { display: none; }
 .sugerencias .chip { background: var(--fondo); }
@@ -178,7 +203,15 @@ input {
 </head>
 <body>
 <div class="app">
-  <h1>GymNotes</h1>
+  <h1 class="marca-app">
+    <!-- La imagen va incrustada en el HTML (data URI): así no hay que subir otro archivo.
+         Con modo oscuro del teléfono se usa la versión clara, para que no se pierda en el fondo. -->
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="data:image/png;base64,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">
+      <img src="data:image/png;base64,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" alt="" width="23" height="32">
+    </picture>
+    GymNotes
+  </h1>
 
   <!-- ===================== PANTALLA: CARGAR ===================== -->
   <section id="vista-cargar">
@@ -190,8 +223,16 @@ input {
       </div>
 
       <div class="campo">
+        <span class="etiqueta" id="titulo-grupos">Grupo muscular</span>
+        <div class="grupos" id="grupos" role="group" aria-labelledby="titulo-grupos"></div>
+      </div>
+
+      <div class="campo">
         <label for="ejercicio">Ejercicio</label>
-        <input id="ejercicio" placeholder="Escribí o elegí uno" autocomplete="off">
+        <div class="con-limpiar">
+          <input id="ejercicio" placeholder="Escribí o elegí uno" autocomplete="off">
+          <button class="limpiar" id="limpiar-ejercicio" aria-label="Borrar ejercicio elegido" hidden>×</button>
+        </div>
         <div class="sugerencias" id="sugerencias"></div>
       </div>
 
@@ -199,7 +240,7 @@ input {
       <div id="ultima-vez"></div>
 
       <div class="rapido">
-        <div><label for="cant-series">Series</label><input id="cant-series" type="number" inputmode="numeric" min="1" step="1" value="3"></div>
+        <div><label for="cant-series">Series</label><input id="cant-series" type="number" inputmode="numeric" min="1" step="1"></div>
         <div><label for="reps">Reps</label><input id="reps" type="number" inputmode="numeric" min="1" step="1"></div>
         <div><label for="peso">Peso (kg)</label><input id="peso" type="number" inputmode="decimal" min="0" step="0.5"></div>
       </div>
@@ -257,6 +298,11 @@ let fechaSeleccionada = fechaDeHoy();
 let ejercicioSeleccionado = null;      // para la pantalla Historial
 let editandoId = null;                 // id del registro que estás corrigiendo (null = carga nueva)
 
+// El grupo muscular es un dato del EJERCICIO, no de cada sesión:
+// { "Remo con mancuerna": "Espalda", ... }  (solo los que asignaste vos)
+let grupos = {};
+let grupoSeleccionado = null;          // botón de grupo activo en Cargar (null = todos)
+
 /* =========================================================
    2. ALMACENAMIENTO
    Todo queda en el navegador del teléfono (localStorage).
@@ -270,9 +316,18 @@ function leerLocal() {
   try { const t = localStorage.getItem(CLAVE_LOCAL); return t ? JSON.parse(t) : []; }
   catch (e) { return []; }
 }
+// Los grupos van en otra clave: así no hay que cambiar el formato de los registros ya guardados
+const CLAVE_GRUPOS = "gymnotes-grupos-v1";
+
+function leerGrupos() {
+  try { const t = localStorage.getItem(CLAVE_GRUPOS); return t ? JSON.parse(t) : {}; }
+  catch (e) { return {}; }
+}
 function guardar() {
-  try { localStorage.setItem(CLAVE_LOCAL, JSON.stringify(registros)); }
-  catch (e) { avisar("No se pudo guardar en este teléfono"); }
+  try {
+    localStorage.setItem(CLAVE_LOCAL, JSON.stringify(registros));
+    localStorage.setItem(CLAVE_GRUPOS, JSON.stringify(grupos));
+  } catch (e) { avisar("No se pudo guardar en este teléfono"); }
 }
 
 /* =========================================================
@@ -295,20 +350,42 @@ function normalizar(nombre) {
   return limpio.charAt(0).toUpperCase() + limpio.slice(1);
 }
 
-const COLORES = ["--disco-rojo", "--disco-azul", "--disco-amarillo", "--disco-verde"];
-function colorDe(nombre) {
-  let suma = 0;
-  for (const letra of nombre.toLowerCase()) suma += letra.charCodeAt(0);
-  return `var(${COLORES[suma % COLORES.length]})`;
-}
+// Solo los GRUPOS tienen color (los ejercicios no). Cada uno, el de un disco olímpico, de más pesado a más liviano:
+// piernas 25 kg (rojo), espalda 20 kg (azul), pecho 15 kg (amarillo), hombros 10 kg (verde)
+const COLOR_GRUPO = {
+  Piernas: "var(--disco-rojo)",
+  Espalda: "var(--disco-azul)",
+  Pecho:   "var(--disco-amarillo)",
+  Hombros: "var(--disco-verde)"
+};
 
-// Punto de partida para tus grupos: piernas, hombros, espalda y pecho
-const EJERCICIOS_BASE = [
-  "Sentadilla", "Prensa", "Peso muerto rumano", "Estocadas", "Sillón de cuádriceps", "Camilla femoral", "Gemelos",
-  "Press militar", "Vuelos laterales", "Vuelos posteriores", "Face pull",
-  "Dominadas", "Jalón al pecho", "Remo con barra", "Remo en polea baja",
-  "Press de banca", "Press inclinado con mancuernas", "Aperturas", "Fondos"
-];
+const GRUPOS = ["Piernas", "Hombros", "Espalda", "Pecho"];
+
+// Tu rutina, ordenada por grupo (el orden es el que se ve en los botones)
+const EJERCICIOS_BASE = {
+  Piernas: ["Sentadillas", "Prensa 45", "Camilla de cuadriceps", "Peso muerto", "Bulgaras con mancuerna",
+            "Estocadas", "Gemelos parado 1p", "Gemelos sentado", "Hip thrust"],
+  Hombros: ["Press militar", "Vuelos laterales", "Vuelos frontales", "Vuelos posteriores", "Vuelos L+F", "Barra al menton"],
+  Espalda: ["Remo con mancuerna", "Remo en polea baja", "Dominadas abiertas", "Dominadas neutras",
+            "Dominadas cerradas", "Pullover", "Dominadas australianas"],
+  Pecho:   ["Pecho plano", "Pecho inclinado", "Press plano con mancuerna", "Press inclinado con mancuerna",
+            "Aperturas banco plano", "Aperturas banco inclinado", "Fondos"]
+};
+// Nombres que usaste antes de armar esta lista: no se sugieren, pero conservan su grupo
+const NOMBRES_ANTERIORES = { "Pecho inclinado en barra": "Pecho", "Pecho plano con mancuerna": "Pecho" };
+const TODOS_BASE = Object.values(EJERCICIOS_BASE).flat();
+
+// Grupo de un ejercicio: primero lo que asignaste vos, después la lista base
+// Grupo de un ejercicio. Los de tu rutina tienen el grupo fijo (no se puede cambiar);
+// los que agregás en el momento toman el grupo que tenías marcado al guardarlos.
+function grupoDe(nombre) {
+  const clave = sinTildes(nombre);
+  const deRutina = GRUPOS.find(g => EJERCICIOS_BASE[g].some(e => sinTildes(e) === clave));
+  if (deRutina) return deRutina;
+  const anterior = Object.keys(NOMBRES_ANTERIORES).find(n => sinTildes(n) === clave);
+  if (anterior) return NOMBRES_ANTERIORES[anterior];
+  return grupos[nombre] || null;
+}
 
 // "Jalón" y "jalon" cuentan igual al buscar
 function sinTildes(texto) {
@@ -354,6 +431,7 @@ function escapar(texto) {
    4. DIBUJAR (del estado a la pantalla)
    ========================================================= */
 function dibujarTodo() {
+  dibujarGrupos();
   dibujarUltimaVez();
   dibujarBorrador();
   dibujarDia();
@@ -361,24 +439,56 @@ function dibujarTodo() {
   dibujarSugerencias();
 }
 
+function dibujarGrupos() {
+  $("grupos").innerHTML = GRUPOS.map(g =>
+    `<button class="grupo" data-grupo="${g}" aria-pressed="${g === grupoSeleccionado}" style="--color-ej:${COLOR_GRUPO[g]}"><span class="disco"></span>${g}</button>`).join("");
+}
+
 // Botones con ejercicios para elegir de un toque.
 // Primero los tuyos (el más reciente primero), después la lista base.
+// Si hay un grupo elegido, solo los de ese grupo.
 function dibujarSugerencias() {
+  $("limpiar-ejercicio").hidden = $("ejercicio").value === "";
   const texto = sinTildes($("ejercicio").value.trim());
   const propios = ejerciciosPorUso();
-  const base = EJERCICIOS_BASE.filter(b => !propios.some(p => sinTildes(p) === sinTildes(b)));
-  const todos = [...propios, ...base];
+  const base = TODOS_BASE.filter(b => !propios.some(p => sinTildes(p) === sinTildes(b)));
+  let todos = [...propios, ...base];
+  if (grupoSeleccionado) todos = todos.filter(n => grupoDe(n) === grupoSeleccionado);
   // Si ya elegiste uno exacto, no hace falta seguir sugiriendo
   const yaElegido = todos.some(n => sinTildes(n) === texto);
-  const lista = yaElegido ? [] : todos.filter(n => sinTildes(n).includes(texto)).slice(0, 8);
+  const lista = yaElegido ? [] : todos.filter(n => sinTildes(n).includes(texto)).slice(0, grupoSeleccionado ? 12 : 8);
+  if (grupoSeleccionado && lista.length === 0 && !yaElegido) {
+    $("sugerencias").innerHTML = `<p class="sin-grupo">${texto ? "Ejercicio nuevo: si lo guardás, queda en " + grupoSeleccionado + "." : "Todavía no hay ejercicios de " + grupoSeleccionado + "."}</p>`;
+    return;
+  }
   $("sugerencias").innerHTML = lista.map(n => `
-    <button class="chip" data-sugerencia="${escapar(n)}" style="--color-ej:${colorDe(n)}">
-      <span class="disco"></span>${escapar(n)}
+    <button class="chip" data-sugerencia="${escapar(n)}">${escapar(n)}
     </button>`).join("");
+}
+
+function elegirGrupo(g) {
+  grupoSeleccionado = grupoSeleccionado === g ? null : g;   // tocar el activo lo desmarca
+  // Si el ejercicio del campo es de OTRO grupo, lo borramos: no tiene sentido mezclarlos
+  const actual = grupoDe(normalizar($("ejercicio").value));
+  if (grupoSeleccionado && actual && actual !== grupoSeleccionado) {
+    $("ejercicio").value = "";
+    dibujarUltimaVez();
+    dibujarBorrador();
+  }
+  dibujarGrupos();
+  dibujarSugerencias();
+}
+
+// Si lo que escribiste es un ejercicio conocido, se marca su grupo solo
+function sincronizarGrupoConEjercicio() {
+  const g = grupoDe(normalizar($("ejercicio").value));
+  if (g && g !== grupoSeleccionado) { grupoSeleccionado = g; dibujarGrupos(); }
 }
 
 function elegirEjercicio(nombre) {
   $("ejercicio").value = nombre;
+  const g = grupoDe(nombre);
+  if (g) { grupoSeleccionado = g; dibujarGrupos(); }
   dibujarUltimaVez();
   dibujarBorrador();
   dibujarSugerencias();
@@ -389,7 +499,7 @@ function dibujarUltimaVez() {
   const nombre = normalizar($("ejercicio").value);
   const ultimo = nombre ? ultimaVezAntesDe(nombre, fechaSeleccionada) : null;
   $("ultima-vez").innerHTML = !ultimo ? "" : `
-    <div class="ultima" style="--color-ej:${colorDe(nombre)}">
+    <div class="ultima">
       <div class="cuando">La última vez, ${fechaLinda(ultimo.fecha)}</div>
       <div class="que">${resumenSeries(ultimo.series)}</div>
       <div class="acciones">
@@ -401,10 +511,9 @@ function dibujarUltimaVez() {
 
 function dibujarBorrador() {
   const nombre = $("ejercicio").value.trim();
-  const color = nombre ? colorDe(nombre) : "var(--linea)";
   // Cada serie tiene sus propios inputs: así podés ajustar la que varió
   $("series-borrador").innerHTML = borrador.map((s, i) => `
-    <li class="serie" style="--color-ej:${color}">
+    <li class="serie">
       <span class="n">${i + 1}</span>
       <input type="number" inputmode="numeric" min="1" value="${s.reps}" data-indice="${i}" data-campo="reps" aria-label="Repeticiones de la serie ${i + 1}">
       <span class="unidad">reps</span>
@@ -433,9 +542,8 @@ function dibujarDia() {
   $("lista-dia").innerHTML = delDia.length === 0
     ? `<p class="vacio">Nada cargado ${esHoy ? "hoy" : "ese día"} todavía.</p>`
     : delDia.map(r => `
-      <div class="registro${r.id === editandoId ? " en-edicion" : ""}" style="--color-ej:${colorDe(r.ejercicio)}">
+      <div class="registro${r.id === editandoId ? " en-edicion" : ""}">
         <div class="titulo">
-          <span class="disco"></span>
           <span class="nombre">${escapar(r.ejercicio)}</span>
           <button class="enlace" data-editar="${r.id}">Editar</button>
           <button class="quitar" data-borrar="${r.id}" aria-label="Borrar ${escapar(r.ejercicio)}">×</button>
@@ -454,8 +562,7 @@ function dibujarHistorial() {
   if (!nombres.includes(ejercicioSeleccionado)) ejercicioSeleccionado = nombres[0];
 
   $("chips").innerHTML = nombres.map(n => `
-    <button class="chip" data-chip="${escapar(n)}" aria-pressed="${n === ejercicioSeleccionado}" style="--color-ej:${colorDe(n)}">
-      <span class="disco"></span>${escapar(n)}
+    <button class="chip" data-chip="${escapar(n)}" aria-pressed="${n === ejercicioSeleccionado}">${escapar(n)}
     </button>`).join("");
 
   const lista = registrosDe(ejercicioSeleccionado);
@@ -465,6 +572,7 @@ function dibujarHistorial() {
   $("detalle-ejercicio").innerHTML = `
     <div class="bloque">
       <h2>${escapar(ejercicioSeleccionado)}</h2>
+      ${dibujarGrupoDelEjercicio(ejercicioSeleccionado)}
       ${[...lista].reverse().map(r => `
         <div class="registro">
           <div class="titulo">
@@ -480,7 +588,22 @@ function dibujarHistorial() {
         <div class="marca"><div class="valor">${record} kg</div><div class="etiqueta">Tu récord</div></div>
         <div class="marca"><div class="valor">${lista.length}</div><div class="etiqueta">Sesiones</div></div>
       </div>
-      ${dibujarGrafico(lista, colorDe(ejercicioSeleccionado))}
+      ${dibujarGrafico(lista, "var(--tinta)")}
+    </div>`;
+}
+
+// Con grupo: se muestra, sin opción de cambiarlo.
+// Sin grupo (se guardó sin ninguno marcado): botones para asignarlo una única vez.
+function dibujarGrupoDelEjercicio(nombre) {
+  const g = grupoDe(nombre);
+  if (g) return `
+    <div class="asignar" style="--color-ej:${COLOR_GRUPO[g]}">
+      <span class="disco"></span><span class="etiqueta">${g}</span>
+    </div>`;
+  return `
+    <div class="asignar">
+      <span class="etiqueta">Sin grupo. Elegí uno:</span>
+      ${GRUPOS.map(x => `<button class="grupo" data-asignar="${x}" style="--color-ej:${COLOR_GRUPO[x]}"><span class="disco"></span>${x}</button>`).join("")}
     </div>`;
 }
 
@@ -575,6 +698,8 @@ function guardarEjercicio() {
     if (!fila) { senalarFaltante(); return; }
     borrador = seriesDeFilaRapida(fila);
   }
+  // Un ejercicio nuevo queda en el grupo que tenías marcado
+  if (!grupoDe(nombre) && grupoSeleccionado) grupos[nombre] = grupoSeleccionado;
   const nuevo = { fecha: fechaSeleccionada, ejercicio: nombre, series: borrador };
   if (editandoId) {
     // Reemplazamos el registro viejo conservando su id
@@ -592,6 +717,7 @@ function limpiarFormulario() {
   editandoId = null;
   borrador = [];
   $("ejercicio").value = "";
+  $("cant-series").value = "";
   $("reps").value = "";
   $("peso").value = "";
   dibujarTodo();
@@ -602,6 +728,7 @@ function editarRegistro(id) {
   const r = registros.find(x => x.id === id);
   if (!r) return;
   editandoId = id;
+  grupoSeleccionado = grupoDe(r.ejercicio);
   fechaSeleccionada = r.fecha;
   $("fecha").value = r.fecha;
   $("ejercicio").value = r.ejercicio;
@@ -630,9 +757,17 @@ function borrarRegistro(id) {
   });
 }
 
+function asignarGrupo(g) {
+  if (grupoDe(ejercicioSeleccionado)) return;   // si ya tiene grupo, no se cambia
+  grupos[ejercicioSeleccionado] = g;
+  guardar();
+  dibujarTodo();
+  avisar(`${ejercicioSeleccionado} quedó en ${g}`);
+}
+
 // Descarga todos los registros como un archivo .json
 function exportarDatos() {
-  const contenido = { app: "gymnotes", version: 1, exportado: new Date().toISOString(), registros };
+  const contenido = { app: "gymnotes", version: 2, exportado: new Date().toISOString(), registros, grupos };
   const archivo = new Blob([JSON.stringify(contenido, null, 2)], { type: "application/json" });
   const enlace = document.createElement("a");
   enlace.href = URL.createObjectURL(archivo);
@@ -659,6 +794,11 @@ async function importarDatos(archivo) {
     const idsExistentes = new Set(registros.map(r => r.id));
     const nuevos = validos.filter(r => !idsExistentes.has(r.id));
     registros.push(...nuevos);
+    // Grupos: sumamos los que no tengas asignados (las copias viejas no traen grupos)
+    const gruposEntrantes = (contenido && typeof contenido.grupos === "object" && contenido.grupos) || {};
+    for (const [nombre, g] of Object.entries(gruposEntrantes)) {
+      if (GRUPOS.includes(g) && !grupos[nombre]) grupos[nombre] = g;
+    }
     guardar();
     dibujarTodo();
     avisar(nuevos.length ? `Se sumaron ${nuevos.length} ejercicios` : "Ya tenías todo lo de esa copia");
@@ -682,8 +822,16 @@ $("fecha").addEventListener("change", () => {
   dibujarUltimaVez();
   dibujarDia();
 });
-$("ejercicio").addEventListener("input", () => { dibujarUltimaVez(); dibujarBorrador(); dibujarSugerencias(); });
+$("ejercicio").addEventListener("input", () => { sincronizarGrupoConEjercicio(); dibujarUltimaVez(); dibujarBorrador(); dibujarSugerencias(); });
 $("agregar-series").addEventListener("click", agregarSeries);
+// Borra el ejercicio elegido y vuelve a mostrar las opciones (el grupo queda marcado)
+$("limpiar-ejercicio").addEventListener("click", () => {
+  $("ejercicio").value = "";
+  dibujarUltimaVez();
+  dibujarBorrador();
+  dibujarSugerencias();
+  $("ejercicio").focus();
+});
 $("peso").addEventListener("keydown", e => { if (e.key === "Enter") guardarEjercicio(); });
 ["cant-series", "reps", "peso"].forEach(id => $(id).addEventListener("input", actualizarBotonGuardar));
 $("guardar-ejercicio").addEventListener("click", guardarEjercicio);
@@ -709,6 +857,8 @@ document.addEventListener("click", (e) => {
   if (!boton) return;
   if (boton.id === "repetir") repetirUltimaVez();
   if (boton.dataset.sugerencia) elegirEjercicio(boton.dataset.sugerencia);
+  if (boton.dataset.grupo) elegirGrupo(boton.dataset.grupo);
+  if (boton.dataset.asignar) asignarGrupo(boton.dataset.asignar);
   if (boton.dataset.quitar !== undefined) { borrador.splice(Number(boton.dataset.quitar), 1); dibujarBorrador(); }
   if (boton.dataset.borrar) borrarRegistro(boton.dataset.borrar);
   if (boton.dataset.editar) editarRegistro(boton.dataset.editar);
@@ -722,6 +872,7 @@ document.addEventListener("click", (e) => {
    ========================================================= */
 $("fecha").value = fechaSeleccionada;
 registros = leerLocal();
+grupos = leerGrupos();
 dibujarTodo();
 
 // Service worker: permite abrir la app sin conexión (por si en el gimnasio no hay señal)
